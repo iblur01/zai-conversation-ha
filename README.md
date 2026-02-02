@@ -17,7 +17,7 @@ A custom integration for Home Assistant that adds z.ai's GLM-4.7 models as conve
 
 ### HACS (Recommended)
 
-1. Open HACS in your Home Assistant instance
+1. Open HACS in your HomeAssistant instance
 2. Click on "Integrations"
 3. Click the three dots in the top right corner
 4. Select "Custom repositories"
