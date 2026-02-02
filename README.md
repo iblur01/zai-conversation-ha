@@ -2,16 +2,16 @@
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
 
-A custom integration for Home Assistant that adds z.ai's GLM-4 models as conversation agents. This integration is based on the official Anthropic integration pattern and supports function calling for Home Assistant device control.
+A custom integration for Home Assistant that adds z.ai's GLM-4.7 models as conversation agents. This integration is based on the official Anthropic integration pattern and supports function calling for Home Assistant device control.
 
 ## Features
 
-- 🤖 **GLM-4 Models Support**: Access to glm-4.7
-- 💬 **Conversation Agent**: Full integration with Home Assistant's conversation system
-- 🔧 **Function Calling**: Control Home Assistant devices through natural language
-- ⚡ **Fast Responses**: Optimized for quick replies
-- 🎛️ **Customizable**: Configure model, temperature, max tokens, and prompts
-- 🔐 **Secure**: API key stored securely in Home Assistant
+- **GLM-4 Models Support**: Access to glm-4.7
+- **Conversation Agent**: Full integration with Home Assistant's conversation system
+- **Function Calling**: Control Home Assistant devices through natural language
+- **Fast Responses**: Optimized for quick replies
+- **Customizable**: Configure model, temperature, max tokens, and prompts
+- **Secure**: API key stored securely in Home Assistant
 
 ## Installation
 
