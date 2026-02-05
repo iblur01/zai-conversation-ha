@@ -272,22 +272,16 @@ class ZaiConversationEntity(
         client: anthropic.AsyncAnthropic = self.entry.runtime_data
         options = self.entry.options
 
-        # Get model configuration
-        model = (
-            options[CONF_CHAT_MODEL]
-            if not options.get(CONF_RECOMMENDED)
-            else DEFAULT[CONF_CHAT_MODEL]
-        )
-        max_tokens = (
-            options[CONF_MAX_TOKENS]
-            if not options.get(CONF_RECOMMENDED)
-            else DEFAULT[CONF_MAX_TOKENS]
-        )
-        temperature = (
-            options[CONF_TEMPERATURE]
-            if not options.get(CONF_RECOMMENDED)
-            else DEFAULT[CONF_TEMPERATURE]
-        )
+        # Get model configuration (use .get() with defaults to handle
+        # entries configured before advanced options were added)
+        if options.get(CONF_RECOMMENDED, True):
+            model = DEFAULT[CONF_CHAT_MODEL]
+            max_tokens = DEFAULT[CONF_MAX_TOKENS]
+            temperature = DEFAULT[CONF_TEMPERATURE]
+        else:
+            model = options.get(CONF_CHAT_MODEL, DEFAULT[CONF_CHAT_MODEL])
+            max_tokens = options.get(CONF_MAX_TOKENS, DEFAULT[CONF_MAX_TOKENS])
+            temperature = options.get(CONF_TEMPERATURE, DEFAULT[CONF_TEMPERATURE])
 
         # Extract system prompt from chat_log.content[0] (SystemContent)
         # After async_provide_llm_data, the first element is always SystemContent
