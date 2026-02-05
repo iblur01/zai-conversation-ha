@@ -3,23 +3,23 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
 [![GitHub release](https://img.shields.io/github/v/release/iannuz92/zai-conversation-ha)](https://github.com/iannuz92/zai-conversation-ha/releases)
 
-Integrazione custom per Home Assistant che trasforma i modelli GLM-4 di z.ai in un vero **assistente personale domotico**. Basata sul pattern dell'integrazione ufficiale Anthropic, con supporto completo al function calling, personalità configurabile, memoria persistente e contesto automatico dei dispositivi.
+Integrazione custom per Home Assistant che trasforma il modello GLM-4.7 di z.ai in un vero **assistente personale domotico**. Basata sul pattern dell'integrazione ufficiale Anthropic, con supporto completo al function calling, personalità configurabile, memoria persistente e contesto automatico dei dispositivi.
 
-## ✨ Funzionalità
+## Funzionalità
 
 ### Core
-- 🤖 **Modelli GLM-4** — Supporto per glm-4.7, glm-4-flash, glm-4-plus, glm-4-air, glm-4-airx, glm-4-long
-- 🏠 **Controllo dispositivi** — Comandi vocali/testuali con function calling nativo HA
-- 🔧 **Conversation Agent** — Integrazione completa con il sistema Assist di Home Assistant
+- **GLM-4.7** — Modello conversazionale di z.ai
+- **Controllo dispositivi** — Comandi vocali/testuali con function calling nativo HA
+- **Conversation Agent** — Integrazione completa con il sistema Assist di Home Assistant
 
 ### Assistente Personale
-- 🧠 **Memoria persistente** — Ricorda le tue preferenze, note e contesto tra le sessioni
-- 🎭 **Personalità configurabile** — Scegli tra Formale, Amichevole o Conciso
-- 📍 **Contesto dispositivi** — Il LLM riceve automaticamente lo stato reale di luci, sensori, termostati, tapparelle raggruppati per area
-- 🎯 **Filtro per area** — Limita il contesto solo alle aree che ti interessano
-- 📝 **Prompt personalizzabile** — Istruzioni extra per personalizzare il comportamento
+- **Memoria persistente** — Ricorda le tue preferenze, note e contesto tra le sessioni
+- **Personalità configurabile** — Scegli tra Formale, Amichevole o Conciso
+- **Contesto dispositivi** — Il LLM riceve automaticamente lo stato reale di luci, sensori, termostati, tapparelle raggruppati per area
+- **Filtro per area** — Limita il contesto solo alle aree che ti interessano
+- **Prompt personalizzabile** — Istruzioni extra per personalizzare il comportamento
 
-## 📦 Installazione
+## Installazione
 
 ### HACS (Consigliato)
 
@@ -37,7 +37,7 @@ Integrazione custom per Home Assistant che trasforma i modelli GLM-4 di z.ai in 
 1. Copia la cartella `custom_components/zai_conversation` nella directory `custom_components` di Home Assistant
 2. Riavvia Home Assistant
 
-## ⚙️ Configurazione
+## Configurazione
 
 ### Ottenere la API Key
 
@@ -63,22 +63,22 @@ Dopo l'installazione, clicca **Configura** sull'integrazione:
 | Opzione | Descrizione | Default |
 |---------|-------------|---------|
 | **Personalità** | Stile delle risposte (Formale / Amichevole / Conciso) | Amichevole |
-| **Memoria** | Abilita memoria persistente tra le sessioni | ✅ Attiva |
-| **Prompt ottimizzato** | Usa il prompt avanzato con contesto dispositivi | ✅ Attivo |
+| **Memoria** | Abilita memoria persistente tra le sessioni | Attiva |
+| **Prompt ottimizzato** | Usa il prompt avanzato con contesto dispositivi | Attivo |
 | **Istruzioni extra** | Template aggiuntivo per personalizzare il comportamento | — |
 | **Controllo HA** | API per il controllo dispositivi (`assist` / `intent` / `none`) | `assist` |
-| **Impostazioni consigliate** | Usa parametri ottimizzati per il modello | ✅ Attivo |
+| **Impostazioni consigliate** | Usa parametri ottimizzati per il modello | Attivo |
 
 #### Opzioni Avanzate (disabilita "Impostazioni consigliate")
 
 | Opzione | Descrizione | Default | Range |
 |---------|-------------|---------|-------|
-| **Modello** | Modello GLM-4 da usare | glm-4.7 | Vedi tabella |
+| **Modello** | Modello da usare | glm-4.7 | — |
 | **Token massimi** | Lunghezza massima risposta | 3000 | 1–8000 |
 | **Temperatura** | Creatività delle risposte | 0.7 | 0–1 |
 | **Filtro aree** | Limita il contesto ai dispositivi di aree specifiche | Tutte | Multi-select |
 
-## 🚀 Utilizzo
+## Utilizzo
 
 ### Comandi Naturali
 
@@ -111,18 +111,7 @@ L'assistente ricorda le tue preferenze tra una sessione e l'altra:
 | **Amichevole** | Colloquiale, con emoji, usa il "tu" |
 | **Conciso** | Risposte minimali, solo l'essenziale |
 
-## 📋 Modelli Supportati
-
-| Modello | Descrizione | Consigliato per |
-|---------|-------------|-----------------|
-| `glm-4.7` | Modello principale, bilanciato | ⭐ Uso generale |
-| `glm-4-flash` | Veloce, risposte rapide | Automazioni veloci |
-| `glm-4-plus` | Più potente | Conversazioni complesse |
-| `glm-4-air` | Leggero | Risposte semplici |
-| `glm-4-airx` | Air ottimizzato | Performance |
-| `glm-4-long` | Contesto esteso | Conversazioni lunghe |
-
-## 🏗️ Architettura
+## Architettura
 
 ```
 custom_components/zai_conversation/
@@ -149,7 +138,7 @@ custom_components/zai_conversation/
 5. Il prompt completo viene inviato insieme alle istruzioni di Home Assistant (tool calling) all'API z.ai
 6. La risposta viene processata: se contiene tool calls, vengono eseguite e il risultato reinviato al modello fino a 10 iterazioni
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Errore "Cannot connect"
 - Verifica che la API key sia corretta
@@ -179,24 +168,24 @@ custom_components/zai_conversation/
 - La memoria viene salvata in `/.storage/zai_memory_<entry_id>.json`
 - Riavvia HA se la memoria non si carica
 
-## 📋 Requisiti
+## Requisiti
 
 - **Home Assistant** 2024.1.0 o successivo
 - **Python** 3.12+ (fornito dall'installazione HA)
 - **Pacchetto** `anthropic` v0.40.0 (installato automaticamente)
 - **Account** [z.ai](https://z.ai) con API key attiva
 
-## 🤝 Supporto
+## Supporto
 
-- 🐛 [Apri un issue](https://github.com/iannuz92/zai-conversation-ha/issues) per bug o richieste
-- 📋 Includi i log di Home Assistant quando segnali problemi
-- 💡 Le pull request sono benvenute
+- [Apri un issue](https://github.com/iannuz92/zai-conversation-ha/issues) per bug o richieste
+- Includi i log di Home Assistant quando segnali problemi
+- Le pull request sono benvenute
 
-## 📜 Crediti
+## Crediti
 
 Basata sull'integrazione ufficiale [Anthropic](https://github.com/home-assistant/core/tree/dev/homeassistant/components/anthropic) di Home Assistant core, adattata per l'API z.ai con funzionalità avanzate di assistente personale.
 
-## 📄 Licenza
+## Licenza
 
 MIT License — Vedi il file [LICENSE](LICENSE) per i dettagli.
 
@@ -206,26 +195,26 @@ MIT License — Vedi il file [LICENSE](LICENSE) per i dettagli.
 
 ### v1.0.2
 
-- 🐛 Fix critico: accesso al system prompt tramite `chat_log.content[0]` (SystemContent)
-- 🐛 Fix: messaggi API ora escludono correttamente il SystemContent (`content[1:]`)
-- 🐛 Fix: gestione attributi tool_call compatibile con `llm.ToolInput`
-- 🐛 Fix: aggiunto handling `ConverseError` su `async_provide_llm_data`
-- 🐛 Fix: rimossa ereditarietà `ZaiBaseLLMEntity` incompatibile
-- 🐛 Fix: rimosso `isinstance()` con TypeAliasType (crash su Python 3.12+)
-- 🧹 Pulizia import inutilizzati in tutti i moduli
+- Fix critico: accesso al system prompt tramite `chat_log.content[0]` (SystemContent)
+- Fix: messaggi API ora escludono correttamente il SystemContent (`content[1:]`)
+- Fix: gestione attributi tool_call compatibile con `llm.ToolInput`
+- Fix: aggiunto handling `ConverseError` su `async_provide_llm_data`
+- Fix: rimossa ereditarietà `ZaiBaseLLMEntity` incompatibile
+- Fix: rimosso `isinstance()` con TypeAliasType (crash su Python 3.12+)
+- Pulizia import inutilizzati in tutti i moduli
 
 ### v1.0.1
 
-- 🐛 Fix errori di indentazione in `config_flow.py` e `conversation.py`
-- 🐛 Fix gestione errori robusta con fallback
+- Fix errori di indentazione in `config_flow.py` e `conversation.py`
+- Fix gestione errori robusta con fallback
 
 ### v1.0.0
 
-- 🎉 Release iniziale
-- 🤖 Supporto modelli GLM-4 via z.ai
-- 🏠 Conversation agent con function calling
-- 🧠 Memoria persistente dell'assistente
-- 🎭 Personalità configurabili (Formale/Amichevole/Conciso)
-- 📍 Contesto automatico dispositivi per area
-- ⚙️ Configurazione completa da UI
-- 📦 Compatibilità HACS
+- Release iniziale
+- Supporto modello GLM-4.7 via z.ai
+- Conversation agent con function calling
+- Memoria persistente dell'assistente
+- Personalità configurabili (Formale/Amichevole/Conciso)
+- Contesto automatico dispositivi per area
+- Configurazione completa da UI
+- Compatibilità HACS
