@@ -4,11 +4,10 @@ from __future__ import annotations
 
 from functools import partial
 import logging
-from typing import TYPE_CHECKING
 
 import anthropic
 
-from homeassistant.config_entries import ConfigEntry, ConfigSubentry
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_API_KEY, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady

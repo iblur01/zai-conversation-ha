@@ -14,7 +14,6 @@ from homeassistant.config_entries import (
     ConfigEntry,
     ConfigFlow,
     ConfigFlowResult,
-    ConfigSubentry,
     OptionsFlow,
 )
 from homeassistant.const import CONF_API_KEY, CONF_NAME
@@ -55,7 +54,6 @@ from .const import (
     PERSONALITY_FORMAL,
     PERSONALITY_FRIENDLY,
     PERSONALITY_OPTIONS,
-    SUBENTRY_CONVERSATION,
 )
 
 _LOGGER = logging.getLogger(__name__)

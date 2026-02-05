@@ -16,14 +16,12 @@ from anthropic.types import (
 import voluptuous_openapi
 
 from homeassistant.components import conversation
-from homeassistant.config_entries import ConfigEntry, ConfigSubentry
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import llm
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.util import ulid
 
-from . import ZaiConfigEntry
 from .assistant_memory import AssistantMemory
 from .const import (
     CONF_AREA_FILTER,
@@ -39,13 +37,13 @@ from .const import (
     DEFAULT,
     DOMAIN,
     MEMORY_KEY,
-    SUBENTRY_CONVERSATION,
 )
 from .device_manager import DeviceContextBuilder
-from .entity import ZaiBaseLLMEntity
-from .prompt_templates import PERSONALITY_FRIENDLY, build_system_prompt
+from .prompt_templates import build_system_prompt
 
 _LOGGER = logging.getLogger(__name__)
+
+MAX_TOOL_ITERATIONS = 10
 
 
 async def async_setup_entry(
@@ -63,7 +61,7 @@ async def async_setup_entry(
 
 
 def _format_tool(
-    tool: conversation.llm.Tool, custom_serializer: Any | None = None
+    tool: llm.Tool, custom_serializer: Any | None = None
 ) -> ToolParam:
     """Format tool for z.ai API."""
     return ToolParam(
@@ -78,83 +76,90 @@ def _format_tool(
 def _convert_content(
     chat_content: Iterable[conversation.Content],
 ) -> list[MessageParam]:
-    """Transform HA chat_log content into z.ai/Anthropic API format."""
+    """Transform HA chat_log content into z.ai/Anthropic API format.
+
+    NOTE: SystemContent is skipped here - it is handled separately
+    via the 'system' parameter of the API call.
+    """
     messages: list[MessageParam] = []
 
     for content in chat_content:
+        # Skip SystemContent - handled separately
+        if isinstance(content, conversation.SystemContent):
+            continue
+
         if isinstance(content, conversation.UserContent):
-            # User message
-            message_parts: list[Any] = []
-
-            if content.content:
-                message_parts.append({"type": "text", "text": content.content})
-
-            # Add attachments
-            if content.attachments:
-                for attachment in content.attachments:
-                    if attachment.content_type.startswith("image/"):
-                        message_parts.append(
-                            {
-                                "type": "image",
-                                "source": {
-                                    "type": "base64",
-                                    "media_type": attachment.content_type,
-                                    "data": attachment.data,
-                                },
-                            }
-                        )
-                    elif attachment.content_type == "application/pdf":
-                        message_parts.append(
-                            {
-                                "type": "document",
-                                "source": {
-                                    "type": "base64",
-                                    "media_type": "application/pdf",
-                                    "data": attachment.data,
-                                },
-                            }
-                        )
-
-            messages.append({"role": "user", "content": message_parts})
+            # Combine consecutive user messages
+            if not messages or messages[-1]["role"] != "user":
+                messages.append(
+                    MessageParam(
+                        role="user",
+                        content=content.content or "",
+                    )
+                )
+            elif isinstance(messages[-1]["content"], str):
+                messages[-1]["content"] = [
+                    TextBlockParam(type="text", text=messages[-1]["content"]),
+                    TextBlockParam(type="text", text=content.content or ""),
+                ]
+            else:
+                messages[-1]["content"].append(
+                    TextBlockParam(type="text", text=content.content or "")
+                )
 
         elif isinstance(content, conversation.AssistantContent):
-            # Assistant message
-            message_parts = []
+            # Combine consecutive assistant messages
+            if not messages or messages[-1]["role"] != "assistant":
+                messages.append(
+                    MessageParam(
+                        role="assistant",
+                        content=[],
+                    )
+                )
 
             if content.content:
-                message_parts.append({"type": "text", "text": content.content})
+                messages[-1]["content"].append(
+                    TextBlockParam(type="text", text=content.content)
+                )
 
             # Add tool uses
             if content.tool_calls:
                 for tool_call in content.tool_calls:
-                    message_parts.append(
+                    tool_name = getattr(tool_call, "tool_name", None) or getattr(tool_call, "name", "unknown")
+                    tool_args = getattr(tool_call, "tool_args", None) or getattr(tool_call, "args", {})
+                    tool_id = getattr(tool_call, "id", "unknown")
+                    messages[-1]["content"].append(
                         {
                             "type": "tool_use",
-                            "id": tool_call.id,
-                            "name": tool_call.name,
-                            "input": tool_call.args,
+                            "id": tool_id,
+                            "name": tool_name,
+                            "input": tool_args,
                         }
                     )
 
-            messages.append({"role": "assistant", "content": message_parts})
-
         elif isinstance(content, conversation.ToolResultContent):
-            # Tool result
-            messages.append(
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "tool_result",
-                            "tool_use_id": content.tool_call_id,
-                            "content": (
-                                content.tool_result if content.tool_result else ""
-                            ),
-                            "is_error": False,
-                        }
-                    ],
-                }
-            )
+            # Tool result - group with existing user message or create new one
+            tool_result_block = {
+                "type": "tool_result",
+                "tool_use_id": content.tool_call_id,
+                "content": content.tool_result if content.tool_result else "",
+                "is_error": False,
+            }
+
+            if not messages or messages[-1]["role"] != "user":
+                messages.append(
+                    MessageParam(
+                        role="user",
+                        content=[tool_result_block],
+                    )
+                )
+            elif isinstance(messages[-1]["content"], str):
+                messages[-1]["content"] = [
+                    TextBlockParam(type="text", text=messages[-1]["content"]),
+                    tool_result_block,
+                ]
+            else:
+                messages[-1]["content"].append(tool_result_block)
 
     return messages
 
@@ -205,23 +210,22 @@ async def _process_message(
 class ZaiConversationEntity(
     conversation.ConversationEntity,
     conversation.AbstractConversationAgent,
-    ZaiBaseLLMEntity,
 ):
     """z.ai conversation agent."""
 
     _attr_supports_streaming = True
+    _attr_has_entity_name = True
+    _attr_name = "z.ai"
 
     def __init__(
         self,
-        entry: ZaiConfigEntry,
+        entry: ConfigEntry,
         hass: HomeAssistant,
         memory: AssistantMemory | None = None,
     ) -> None:
         """Initialize the conversation entity."""
-        super().__init__(entry, entry)
-        self._attr_name = "z.ai"
-        self._attr_unique_id = entry.entry_id
         self.entry = entry
+        self._attr_unique_id = entry.entry_id
         self._hass = hass
         self._memory = memory
         self._device_builder = DeviceContextBuilder(hass)
@@ -246,24 +250,17 @@ class ZaiConversationEntity(
         except Exception:
             _LOGGER.debug("Failed to record interaction in memory", exc_info=True)
 
-        await chat_log.async_provide_llm_data(
-            user_input.as_llm_context(DOMAIN),
-            options.get(CONF_LLM_HASS_API),
-            options.get(CONF_PROMPT),
-            user_input.extra_system_prompt,
-        )
+        try:
+            await chat_log.async_provide_llm_data(
+                user_input.as_llm_context(DOMAIN),
+                options.get(CONF_LLM_HASS_API),
+                options.get(CONF_PROMPT),
+                user_input.extra_system_prompt,
+            )
+        except conversation.ConverseError as err:
+            return err.as_conversation_result()
 
         await self._async_handle_chat_log(chat_log)
-
-        if not chat_log.content or not isinstance(
-            chat_log.content[-1], conversation.AssistantContent
-        ):
-            chat_log.async_add_assistant_content_without_tools(
-                conversation.AssistantContent(
-                    content="Sorry, I couldn't get a response from the model.",
-                    agent_id=self.entity_id,
-                )
-            )
 
         return conversation.async_get_result_from_chat_log(user_input, chat_log)
 
@@ -292,11 +289,17 @@ class ZaiConversationEntity(
             else DEFAULT[CONF_TEMPERATURE]
         )
 
-        # Build system prompt
+        # Extract system prompt from chat_log.content[0] (SystemContent)
+        # After async_provide_llm_data, the first element is always SystemContent
         system_prompt: list[TextBlockParam] = []
 
         try:
             use_custom_prompt = options.get(CONF_USE_CUSTOM_PROMPT, DEFAULT[CONF_USE_CUSTOM_PROMPT])
+
+            # Get the HA-generated system content from content[0]
+            ha_system_text = ""
+            if chat_log.content and isinstance(chat_log.content[0], conversation.SystemContent):
+                ha_system_text = chat_log.content[0].content or ""
 
             if use_custom_prompt:
                 # Get personality
@@ -337,50 +340,48 @@ class ZaiConversationEntity(
                     )
                 ]
 
-                # Also include any HA-generated system content (for tool instructions)
-                if hasattr(chat_log, 'system') and chat_log.system:
-                    for system in chat_log.system:
-                        sys_content = system.content if hasattr(system, 'content') else str(system)
-                        if "assist" not in sys_content.lower()[:100]:
-                            system_prompt.append(
-                                TextBlockParam(
-                                    type="text",
-                                    text=sys_content,
-                                    cache_control={"type": "ephemeral"},
-                                )
-                            )
-            else:
-                # Use default HA system prompts
-                if hasattr(chat_log, 'system') and chat_log.system:
-                    for system in chat_log.system:
-                        sys_content = system.content if hasattr(system, 'content') else str(system)
-                        system_prompt.append(
-                            TextBlockParam(
-                                type="text",
-                                text=sys_content,
-                                cache_control={"type": "ephemeral"},
-                            )
+                # Also include HA-generated system content (tool instructions etc.)
+                if ha_system_text:
+                    system_prompt.append(
+                        TextBlockParam(
+                            type="text",
+                            text=ha_system_text,
+                            cache_control={"type": "ephemeral"},
                         )
+                    )
+            else:
+                # Use default HA system prompt only
+                if ha_system_text:
+                    system_prompt = [
+                        TextBlockParam(
+                            type="text",
+                            text=ha_system_text,
+                            cache_control={"type": "ephemeral"},
+                        )
+                    ]
         except Exception:
             _LOGGER.warning("Failed to build custom system prompt, using fallback", exc_info=True)
-            # Fallback: try to use HA default system prompts
             system_prompt = []
             try:
-                if hasattr(chat_log, 'system') and chat_log.system:
-                    for system in chat_log.system:
-                        sys_content = system.content if hasattr(system, 'content') else str(system)
-                        system_prompt.append(
+                if chat_log.content and isinstance(chat_log.content[0], conversation.SystemContent):
+                    fallback_text = chat_log.content[0].content or ""
+                    if fallback_text:
+                        system_prompt = [
                             TextBlockParam(
                                 type="text",
-                                text=sys_content,
+                                text=fallback_text,
                                 cache_control={"type": "ephemeral"},
                             )
-                        )
+                        ]
             except Exception:
                 _LOGGER.warning("Failed to get any system prompt", exc_info=True)
 
-        # Format messages
-        messages = _convert_content(chat_log.content)
+        # Format messages - skip SystemContent (index 0)
+        messages = _convert_content(chat_log.content[1:])
+
+        # Ensure we have at least one message
+        if not messages:
+            messages = [MessageParam(role="user", content="Hello")]
 
         # Format tools
         tools: list[ToolParam] = []
@@ -404,12 +405,8 @@ class ZaiConversationEntity(
         if tools:
             model_args["tools"] = tools
 
-        chat_log.model = model
-
-        # Tool call iteration
-        max_iterations = 10
-        iteration = 0
-        for iteration in range(max_iterations):
+        # Tool call iteration loop
+        for _iteration in range(MAX_TOOL_ITERATIONS):
             try:
                 message = await client.messages.create(**model_args)
 
@@ -425,8 +422,5 @@ class ZaiConversationEntity(
                 break
 
             # Add tool results and continue
-            messages = _convert_content(chat_log.content)
+            messages = _convert_content(chat_log.content[1:])
             model_args["messages"] = messages
-
-        if iteration == max_iterations - 1:
-            _LOGGER.warning("Reached maximum tool call iterations")
