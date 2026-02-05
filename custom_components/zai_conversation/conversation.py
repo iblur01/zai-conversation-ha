@@ -54,8 +54,6 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up conversation entities."""
-    assert isinstance(config_entry, ZaiConfigEntry)
-
     # Get or create memory instance
     memory = None
     if hass.data.get(DOMAIN) and hass.data[DOMAIN].get(config_entry.entry_id):
