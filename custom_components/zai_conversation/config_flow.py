@@ -246,8 +246,6 @@ class ZaiOptionsFlowHandler(OptionsFlow):
             data_schema=vol.Schema(schema_dict),
             errors=errors,
         )
-            errors=errors,
-        )
 
     async def async_step_advanced(
         self, user_input: dict[str, Any] | None = None

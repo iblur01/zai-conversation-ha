@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import AsyncGenerator, Iterable
-from dataclasses import dataclass, field
-import json
+from collections.abc import Iterable
 import logging
 from typing import Any, Literal
 
@@ -129,16 +127,16 @@ def _convert_content(
                 message_parts.append({"type": "text", "text": content.content})
 
             # Add tool uses
-                if content.tool_calls:
-                    for tool_call in content.tool_calls:
-                        message_parts.append(
-                            {
-                                "type": "tool_use",
-                                "id": tool_call.id,
-                                "name": tool_call.name,
-                                "input": tool_call.args,
-                            }
-                        )
+            if content.tool_calls:
+                for tool_call in content.tool_calls:
+                    message_parts.append(
+                        {
+                            "type": "tool_use",
+                            "id": tool_call.id,
+                            "name": tool_call.name,
+                            "input": tool_call.args,
+                        }
+                    )
 
             messages.append({"role": "assistant", "content": message_parts})
 
