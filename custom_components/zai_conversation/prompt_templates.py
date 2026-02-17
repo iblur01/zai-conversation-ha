@@ -134,6 +134,7 @@ def build_system_prompt(
     devices_context: str,
     memory_context: str = "",
     extra_instructions: str = "",
+    output_language: str = "en",
 ) -> str:
     """Build the complete system prompt.
 
@@ -142,6 +143,7 @@ def build_system_prompt(
         devices_context: Device list from DeviceContextBuilder.
         memory_context: Memory context from AssistantMemory.
         extra_instructions: Additional instructions to append.
+        output_language: Language code for output (en, fr, it, de, es).
 
     Returns:
         Complete system prompt string.
@@ -159,6 +161,18 @@ def build_system_prompt(
         devices=devices_context if devices_context else "(Nessun dispositivo esposto)",
         memory=memory_section,
     )
+
+    # Add language instruction
+    language_instructions = {
+        "en": "Always respond in English only. Never use other languages.",
+        "fr": "Réponds TOUJOURS en français uniquement. N'utilise jamais d'autres langues.",
+        "it": "Rispondi SEMPRE in italiano solamente. Non usare altre lingue.",
+        "de": "Antworte IMMER nur auf Deutsch. Verwende keine anderen Sprachen.",
+        "es": "Responde SIEMPRE solo en español. Nunca uses otros idiomas.",
+    }
+    
+    language_instr = language_instructions.get(output_language, language_instructions["en"])
+    prompt = f"{language_instr}\n\n{prompt}"
 
     # Add extra instructions if any
     if extra_instructions:

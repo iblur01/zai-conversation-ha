@@ -30,6 +30,7 @@
           "memory_enabled": "Activer la mémoire",
           "use_custom_prompt": "Utiliser le prompt optimisé",
           "prompt": "Instructions supplémentaires",
+          "output_language": "Langue de sortie",
           "llm_hass_api": "Contrôler Home Assistant",
           "recommended": "Utiliser les paramètres recommandés"
         },
@@ -38,6 +39,7 @@
           "memory_enabled": "Mémoriser les préférences et notes de l'utilisateur entre les sessions",
           "use_custom_prompt": "Utiliser un prompt optimisé avec la liste des appareils et les instructions des outils",
           "prompt": "Instructions personnalisées supplémentaires (optionnel)",
+          "output_language": "Langue pour les réponses de l'assistant",
           "llm_hass_api": "Permettre à l'intégration de contrôler Home Assistant"
         }
       },
@@ -66,6 +68,15 @@
         "friendly": "Amical",
         "concise": "Concis"
       }
+    },
+    "output_language": {
+      "options": {
+        "en": "English",
+        "fr": "Français",
+        "it": "Italiano",
+        "de": "Deutsch",
+        "es": "Español"
+      }
     }
   },
   "subentry": {
@@ -80,6 +91,7 @@
             "memory_enabled": "Activer la mémoire",
             "use_custom_prompt": "Utiliser le prompt optimisé",
             "prompt": "Instructions supplémentaires",
+            "output_language": "Langue de sortie",
             "llm_hass_api": "Contrôler Home Assistant",
             "recommended": "Utiliser les paramètres recommandés"
           },
@@ -88,6 +100,7 @@
             "memory_enabled": "Mémoriser les préférences et notes de l'utilisateur entre les sessions",
             "use_custom_prompt": "Utiliser un prompt optimisé avec la liste des appareils et les instructions des outils",
             "prompt": "Instructions personnalisées supplémentaires (optionnel)",
+            "output_language": "Langue pour les réponses de l'assistant",
             "llm_hass_api": "Permettre à l'intégration de contrôler Home Assistant"
           }
         },

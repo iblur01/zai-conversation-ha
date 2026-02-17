@@ -30,6 +30,7 @@ from .const import (
     CONF_LLM_HASS_API,
     CONF_MAX_TOKENS,
     CONF_MEMORY_ENABLED,
+    CONF_OUTPUT_LANGUAGE,
     CONF_PERSONALITY,
     CONF_PROMPT,
     CONF_RECOMMENDED,
@@ -359,12 +360,16 @@ class ZaiConversationEntity(
                 # Get extra instructions from user prompt template
                 extra_instructions = options.get(CONF_PROMPT, "")
 
+                # Get output language
+                output_language = options.get(CONF_OUTPUT_LANGUAGE, DEFAULT[CONF_OUTPUT_LANGUAGE])
+
                 # Build the complete prompt
                 custom_prompt = build_system_prompt(
                     personality=personality,
                     devices_context=devices_context,
                     memory_context=memory_context,
                     extra_instructions=extra_instructions,
+                    output_language=output_language,
                 )
 
                 # Create system prompt blocks with our custom prompt

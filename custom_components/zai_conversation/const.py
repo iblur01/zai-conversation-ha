@@ -22,6 +22,7 @@ CONF_PERSONALITY: Final = "personality"
 CONF_MEMORY_ENABLED: Final = "memory_enabled"
 CONF_AREA_FILTER: Final = "area_filter"
 CONF_USE_CUSTOM_PROMPT: Final = "use_custom_prompt"
+CONF_OUTPUT_LANGUAGE: Final = "output_language"
 
 # Personality options
 PERSONALITY_FORMAL: Final = "formal"
@@ -32,6 +33,21 @@ PERSONALITY_OPTIONS: Final = [
     PERSONALITY_FORMAL,
     PERSONALITY_FRIENDLY,
     PERSONALITY_CONCISE,
+]
+
+# Language options
+LANGUAGE_ENGLISH: Final = "en"
+LANGUAGE_FRENCH: Final = "fr"
+LANGUAGE_ITALIAN: Final = "it"
+LANGUAGE_GERMAN: Final = "de"
+LANGUAGE_SPANISH: Final = "es"
+
+LANGUAGE_OPTIONS: Final = [
+    LANGUAGE_ENGLISH,
+    LANGUAGE_FRENCH,
+    LANGUAGE_ITALIAN,
+    LANGUAGE_GERMAN,
+    LANGUAGE_SPANISH,
 ]
 
 # Default values
@@ -46,6 +62,7 @@ DEFAULT: Final = {
     CONF_MEMORY_ENABLED: True,
     CONF_AREA_FILTER: [],  # Empty = all areas
     CONF_USE_CUSTOM_PROMPT: True,  # Use our optimized prompt by default
+    CONF_OUTPUT_LANGUAGE: LANGUAGE_ENGLISH,  # Default output language
 }
 
 # Available GLM-4 models

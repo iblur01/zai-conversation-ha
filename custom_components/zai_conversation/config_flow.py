@@ -40,6 +40,7 @@ from .const import (
     CONF_LLM_HASS_API,
     CONF_MAX_TOKENS,
     CONF_MEMORY_ENABLED,
+    CONF_OUTPUT_LANGUAGE,
     CONF_PERSONALITY,
     CONF_PROMPT,
     CONF_RECOMMENDED,
@@ -49,6 +50,12 @@ from .const import (
     DEFAULT_BASE_URL,
     DEFAULT_CONVERSATION_NAME,
     DOMAIN,
+    LANGUAGE_ENGLISH,
+    LANGUAGE_FRENCH,
+    LANGUAGE_GERMAN,
+    LANGUAGE_ITALIAN,
+    LANGUAGE_OPTIONS,
+    LANGUAGE_SPANISH,
     MODELS,
     PERSONALITY_CONCISE,
     PERSONALITY_FORMAL,
@@ -217,6 +224,20 @@ class ZaiOptionsFlowHandler(OptionsFlow):
         # Custom prompt template (only shown if use_custom_prompt is True, but always available)
         schema_dict[vol.Optional(CONF_PROMPT, default=options.get(CONF_PROMPT, ""))] = (
             TemplateSelector()
+        )
+
+        # Output language selector
+        schema_dict[
+            vol.Optional(
+                CONF_OUTPUT_LANGUAGE,
+                default=options.get(CONF_OUTPUT_LANGUAGE, DEFAULT[CONF_OUTPUT_LANGUAGE]),
+            )
+        ] = SelectSelector(
+            SelectSelectorConfig(
+                mode=SelectSelectorMode.DROPDOWN,
+                options=LANGUAGE_OPTIONS,
+                translation_key=CONF_OUTPUT_LANGUAGE,
+            )
         )
 
         # LLM API selector

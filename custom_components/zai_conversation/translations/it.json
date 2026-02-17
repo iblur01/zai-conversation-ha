@@ -30,6 +30,7 @@
           "memory_enabled": "Abilita Memoria",
           "use_custom_prompt": "Usa Prompt Ottimizzato",
           "prompt": "Istruzioni Aggiuntive",
+          "output_language": "Lingua di Output",
           "llm_hass_api": "Controllo Home Assistant",
           "recommended": "Usa impostazioni consigliate"
         },
@@ -38,6 +39,7 @@
           "memory_enabled": "Ricorda preferenze e note dell'utente tra le sessioni",
           "use_custom_prompt": "Usa prompt ottimizzato con lista dispositivi e istruzioni tool",
           "prompt": "Istruzioni personalizzate aggiuntive (opzionale)",
+          "output_language": "Lingua per le risposte dell'assistente",
           "llm_hass_api": "Permetti all'integrazione di controllare Home Assistant"
         }
       },
@@ -66,6 +68,15 @@
         "friendly": "Amichevole",
         "concise": "Conciso"
       }
+    },
+    "output_language": {
+      "options": {
+        "en": "English",
+        "fr": "Français",
+        "it": "Italiano",
+        "de": "Deutsch",
+        "es": "Español"
+      }
     }
   },
   "subentry": {
@@ -80,6 +91,7 @@
             "memory_enabled": "Abilita Memoria",
             "use_custom_prompt": "Usa Prompt Ottimizzato",
             "prompt": "Istruzioni Aggiuntive",
+            "output_language": "Lingua di Output",
             "llm_hass_api": "Controllo Home Assistant",
             "recommended": "Usa impostazioni consigliate"
           },
@@ -88,6 +100,7 @@
             "memory_enabled": "Ricorda preferenze e note dell'utente tra le sessioni",
             "use_custom_prompt": "Usa prompt ottimizzato con lista dispositivi e istruzioni tool",
             "prompt": "Istruzioni personalizzate aggiuntive (opzionale)",
+            "output_language": "Lingua per le risposte dell'assistente",
             "llm_hass_api": "Permetti all'integrazione di controllare Home Assistant"
           }
         },
